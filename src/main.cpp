@@ -6,11 +6,11 @@
  * Cours Systèmes embarqués (c)2022
  *
     @file     main.cpp
-    @author   Alain Dubé
+    @authors   Alain Dubé, Alexis Leclerc
     @version  1.1 22/08/15
     @description
-      Démonstration comment utiliser le PORT SERIE pour accèder aux fonctionnalités
-      de l'écran STONE en utilisant la classe MyStone et MySerial
+      Utilise l'écran stone pour simuler l'utilisation d'un four qui fait sécher le bois
+      et afficher les informations sur le bois.
 
     platform = ESP32
     OS : Arduino
@@ -20,11 +20,15 @@
         Version    Date       Auteur       Description
         1.1         21/08/15    Alain   Première version du logiciel
         1.2         22/03/02    Alain   Modification de la classe MyStone
+        1.3         22/04/02    Alexis   Modification de tout le programme
 
     Fonctionnalités implantées
         Lecture des evénements envoyés par l'écran
         Envoyer une commande à l'écran
           Optenir la version du Firmware de l'écran
+        Obtenir lorsqu'un bouton est pressé sur l'écran
+        Utiliser la température
+        Modifier les données sur l'écran
 
  * */
 
@@ -183,18 +187,19 @@ void loop() {
 
 
   if(buttonPressed){
+    //si la température est supérieure à 10% de la température minimale et inférieure à 10% de la température minimale
     if(temp > (tempMin - (tempMin * 0.10)) && temp < (tempMin + (tempMin * 0.10)) )
     {
       if(!ovenStarted)
       {
         std::cout << "Four demarre \n";
         myStone->setLabel("lblfourstatus", "Four demarre");
-        ovenStarted = true;
+        ovenStarted = true; //on démarre le four
 
       }
-      timer += 0.5;
+      timer += 0.5; //ajouter 0.5 seconde au timer
     }
-    else{
+    else{ //si la temperature n'est pas dans le range
       if(ovenStarted)
       {
         ovenStarted = false;
@@ -205,23 +210,25 @@ void loop() {
         //buttonPressed = false;
 
       }
+      /* Je crois que je pourrais enlever ses lignes de codes, donc je les commentes, mais je ne sais pas si elles sont vraiment utiles, c'est pourquoi elles sont commentées
       else{
         ovenStarted = false;
         timer = 0;
         myStone->setLabel("lblfourstatus", "Trop froid");
 
       }
+      */
 
    }
   }
-  if(timer >= tempsBois)
+  if(timer >= tempsBois) //lorsque le timer est plus grand ou égale au temps nécessaire pour sécher le bois
   {
-    ovenStarted = false;
-    buttonPressed = false;
-    myStone->beep(1000);
-    std::cout << "cuisson finie";
-    timer = 0;
-    myStone->setLabel("lblfourstatus", "Cuisson finie");
+    ovenStarted = false; //on arrête le four
+    buttonPressed = false; //on "depresse" le bouton
+    myStone->beep(1000); //on fait beeper l'ecran stone
+    std::cout << "cuisson finie"; 
+    timer = 0; //on remet le timer à 0
+    myStone->setLabel("lblfourstatus", "Cuisson finie"); //on affiche que la cuisson est finie
   }
 
 
